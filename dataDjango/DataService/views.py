@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.Model import createModel
+from .models import ModelPP
 from .forms import ModelPPForm
 # Create your views here.
 
@@ -15,7 +15,7 @@ def createModel(request):  # form 으로 빼기
     form = ModelPPForm.forms(request.POST, request.FILE) 
     form.save()
     print(form.cleaned_data)
-
+    return HttpResponse("nn")
     
 # #
 # def ReadModel():
