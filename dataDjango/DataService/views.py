@@ -8,6 +8,10 @@ from .DataSerializer import DataSerializer
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
 from django.db.models import Q
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
+from rest_framework import status
 # Create your views here.
 
 
@@ -32,34 +36,41 @@ def createModel(request):
 
 
 # 04.19 하예진
-# 수정할 컬럼, 수정할 값, 조건 (컬럼 값 상황)
-# param : 조건절 (컬럼, 값, 조건 기호 =,!, >,<), 변경목표값 (컬럼, 값)
-# UpdateModel(dict, dict)
-def UpdateModel(condition, target):
-    condColumn= condition['col'] #조건절 where condColumn = condValue
-    condValue=condition['val']
-    condFlag= condition['flag'] # =, ! , > , < , >=, <= , in
+# get conditions by post request and update database
+# @input    
+# @output   Response    RESET_CONTENT
+@csrf_exempt
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def updateModel(request):
 
-    targetColumn= target['col'] #변경목표값 set targetColumn= targetValue
-    targetValue=target['val']
+    if request.method == 'POST':
+        condColumn = request.data.get('condColumn')
+        condValue = request.data.get('condValue')
+        condFlag = request.data.get('condFlag')
+        targetColumn = request.data.get('targetColumn')
+        targetValue = request.data.get('targetValue')
 
-    if condFlag =='=':
-        ModelPP.objects.filter(**{condColumn : condValue}).update(**{targetColumn:targetValue})
-    elif condFlag == '!':
-         ModelPP.objects.filter(~Q(**{condColumn : condValue})).update(**{targetColumn:targetValue})
-    elif condFlag =='>=':
-         ModelPP.objects.filter(**{condColumn+'__gte' : condValue}).update(**{targetColumn:targetValue})
-    elif condFlag =='>':
-         ModelPP.objects.filter(**{condColumn+'__gt' : condValue}).update(**{targetColumn:targetValue})
-    elif condFlag =='<=':
-         ModelPP.objects.filter(**{condColumn+'__lte' : condValue}).update(**{targetColumn:targetValue})
-    elif condFlag =='<':
-         ModelPP.objects.filter(**{condColumn+'__lt' : condValue}).update(**{targetColumn:targetValue})
-    elif condFlag =='in':
-         ModelPP.objects.filter(**{condColumn+'__in' : condValue}).update(**{targetColumn:targetValue})
+        if condFlag =='=':
+            ModelPP.objects.filter(**{condColumn : condValue}).update(**{targetColumn:targetValue})
+        elif condFlag == '!':
+            ModelPP.objects.filter(~Q(**{condColumn : condValue})).update(**{targetColumn:targetValue})
+        elif condFlag =='>=':
+            ModelPP.objects.filter(**{condColumn+'__gte' : condValue}).update(**{targetColumn:targetValue})
+        elif condFlag =='>':
+            ModelPP.objects.filter(**{condColumn+'__gt' : condValue}).update(**{targetColumn:targetValue})
+        elif condFlag =='<=':
+            ModelPP.objects.filter(**{condColumn+'__lte' : condValue}).update(**{targetColumn:targetValue})
+        elif condFlag =='<':
+            ModelPP.objects.filter(**{condColumn+'__lt' : condValue}).update(**{targetColumn:targetValue})
+        elif condFlag =='in':
+            ModelPP.objects.filter(**{condColumn+'__in' : condValue}).update(**{targetColumn:targetValue})
 
+        return Response(status=status.HTTP_205_RESET_CONTENT)
+
+    else:
+        return Response(status=status.HTTP_303_SEE_OTHER)
     
-
 
 # 200419 qyu
 # get request parameter(tid) using url and remove objects from database filtered by tid
