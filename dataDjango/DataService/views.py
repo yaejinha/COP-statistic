@@ -14,15 +14,18 @@ from django.db.models import Q
 # 04.19 하예진
 # agent 한테 2초에 한번씩 받은 내용 db 저장
 @csrf_exempt
-@api_view(['PUT', 'POST'])
+@api_view(['POST'])
 def createModel(request): 
+    if request.method == 'POST':
+        inputTestdata= DataSerializer(data=request.data) # 전달받은 데이터 
 
-    inputTestdata= DataSerializer(data=request.data) # 전달받은 데이터 
-
-    if inputTestdata.is_valid():  #모델 형식에 맞는 데이터면 저장 
-        inputTestdata.save()
-
-    return HttpResponse("OK")
+        if inputTestdata.is_valid():  #모델 형식에 맞는 데이터면 저장 
+            inputTestdata.save()
+            return Response(status=status.HTTP_201_CREATED) # success createModel 
+        else:
+            return Response(inputTestdata.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_303_SEE_OTHER) # redirect custom error page
     
 # #
 # def ReadModel():
@@ -58,7 +61,17 @@ def UpdateModel(condition, target):
     
 
 
-# def DeleteModel 
-
-
-
+# 200419 qyu
+# get request parameter(tid) using url and remove objects from database filtered by tid
+# @input    tid         test id
+# @output   Response    NO_CONTENT
+@csrf_exempt
+@api_view(['GET'])
+def deleteModel(request, tid):
+    
+    if request.method == 'GET':
+        model = ModelPP.objects.filter(tid=tid)
+        model.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    else:
+        return Response(status=status.HTTP_303_SEE_OTHER)
