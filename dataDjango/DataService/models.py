@@ -12,5 +12,5 @@ class ModelPP(models.Model):
     sucessTest = models.IntegerField(default=0) #성공테스트수
     meanResp = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.00)) #평균응답시간
     flag = models.CharField(max_length=20)  # 테스트 시작 S 끝 E 진행중 D
-    dateTime = models.DateTimeField()
+    dateTime = models.CharField(max_length=20) 
 

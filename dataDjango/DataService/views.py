@@ -1,21 +1,27 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 from .models import ModelPP
-from .forms import ModelPPForm
+from django.views.decorators.csrf import csrf_exempt 
+from django.http.response import JsonResponse
+import json
+from .DataSerializer import DataSerializer
+from rest_framework.request import Request
+from rest_framework.decorators import api_view
 # Create your views here.
 
 
-# post 로 받은 내용 저장 
-def createModel(request):  # form 으로 빼기
-    # tid =  request.POST.get("tid")
-    # vuser = request.POST.get("vuser")
-    # tests = request.POST.get("tests")
-    # sucessTest =request.POST.get("successTest")
-    # meanResp =request.POST.get("successTest")
-    # flag =request.POST.get("flag")
-    form = ModelPPForm.forms(request.POST, request.FILE) 
-    form.save()
-    print(form.cleaned_data)
-    return HttpResponse("nn")
+# 04.19 하예진
+# agent 한테 2초에 한번씩 받은 내용 db 저장
+@csrf_exempt
+@api_view(['PUT', 'POST'])
+def createModel(request): 
+
+    inputTestdata= DataSerializer(data=request.data) # 전달받은 데이터 
+
+    if inputTestdata.is_valid():  #모델 형식에 맞는 데이터면 저장 
+        inputTestdata.save()
+
+    return HttpResponse("OK")
     
 # #
 # def ReadModel():
