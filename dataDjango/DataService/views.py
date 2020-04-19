@@ -7,6 +7,7 @@ import json
 from .DataSerializer import DataSerializer
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
+from django.db.models import Q
 # Create your views here.
 
 
@@ -25,9 +26,36 @@ def createModel(request):
     
 # #
 # def ReadModel():
-# json 형태로 보낸다 
 
-# def UpdateModel
+
+# 04.19 하예진
+# 수정할 컬럼, 수정할 값, 조건 (컬럼 값 상황)
+# param : 조건절 (컬럼, 값, 조건 기호 =,!, >,<), 변경목표값 (컬럼, 값)
+# UpdateModel(dict, dict)
+def UpdateModel(condition, target):
+    condColumn= condition['col'] #조건절 where condColumn = condValue
+    condValue=condition['val']
+    condFlag= condition['flag'] # =, ! , > , < , >=, <= , in
+
+    targetColumn= target['col'] #변경목표값 set targetColumn= targetValue
+    targetValue=target['val']
+
+    if condFlag =='=':
+        ModelPP.objects.filter(**{condColumn : condValue}).update(**{targetColumn:targetValue})
+    elif condFlag == '!':
+         ModelPP.objects.filter(~Q(**{condColumn : condValue})).update(**{targetColumn:targetValue})
+    elif condFlag =='>=':
+         ModelPP.objects.filter(**{condColumn+'__gte' : condValue}).update(**{targetColumn:targetValue})
+    elif condFlag =='>':
+         ModelPP.objects.filter(**{condColumn+'__gt' : condValue}).update(**{targetColumn:targetValue})
+    elif condFlag =='<=':
+         ModelPP.objects.filter(**{condColumn+'__lte' : condValue}).update(**{targetColumn:targetValue})
+    elif condFlag =='<':
+         ModelPP.objects.filter(**{condColumn+'__lt' : condValue}).update(**{targetColumn:targetValue})
+    elif condFlag =='in':
+         ModelPP.objects.filter(**{condColumn+'__in' : condValue}).update(**{targetColumn:targetValue})
+
+    
 
 
 # def DeleteModel 
